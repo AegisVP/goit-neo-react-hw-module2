@@ -13,7 +13,7 @@ const initialCounters = {
   // horrible: { count: 0, label: 'Horrible', good: false },
 };
 const counterColors = {
-  // great: 'rgb(0, 128, 0)',
+  great: 'rgb(0, 128, 0)',
   good: 'rgb(0, 255, 0)',
   neutral: 'rgb(200, 200, 0)',
   bad: 'rgb(255, 0, 0)',
@@ -47,7 +47,7 @@ export default function App() {
     let localCounters = initialCounters;
 
     try {
-      localCounters = JSON.parse(localStorage.getItem(localStorageKey));
+      localCounters = JSON.parse(localStorage.getItem(localStorageKey)) ?? initialCounters;
     } catch (error) {
       return initialCounters;
     }
