@@ -1,16 +1,17 @@
+/* eslint-disable no-prototype-builtins */
 import css from './Feedback.module.css';
-import { calculateTotalFeedback } from '../../helpers/calculateTotalFeedback';
+import PropTypes from 'prop-types';
 
-export default function Feedback({ counters, colors, goodCounters = [] }) {
-  const totalFeedback = calculateTotalFeedback(counters);
-
+export default function Feedback({ counters, colors, totalFeedback }) {
   const calculatePositivePercentage = () => {
-    return totalFeedback > 0
-      ? Math.round((goodCounters.map(key => (counters.hasOwnProperty(key) ? counters[key].count : 0)).reduce((acc, count) => acc + count, 0) / totalFeedback) * 100)
-      : 0;
+    const goodFeedback =
+      Object.values(counters)
+        .filter(({ good }) => true === good)
+        .reduce((acc, { count }) => acc + count, 0) ?? 0;
+    return totalFeedback > 0 ? Math.round((goodFeedback / totalFeedback) * 100) : 0;
   };
 
-  return totalFeedback > 0 ? (
+  return (
     <ul className={css.card}>
       {Object.keys(counters).map(key => {
         const { label, count } = counters[key];
@@ -22,12 +23,20 @@ export default function Feedback({ counters, colors, goodCounters = [] }) {
           </li>
         );
       })}
-      <li className={css.item} key="positive" style={{ fontWeight: 'bold', backgroundColor: 'rgb(128, 128, 255)' }}>
+      <li className={css.item} key="total" style={{ fontWeight: 'bold', backgroundColor: 'rgb(200, 200, 200)' }}>
+        <span className={css.label}>Total: &nbsp; </span>
+        <span className={css.percentage}>{totalFeedback}</span>
+      </li>
+      <li className={css.item} key="positive" style={{ fontWeight: 'bold', backgroundColor: 'rgb(200, 255, 200)' }}>
         <span className={css.label}>Positive: &nbsp; </span>
         <span className={css.percentage}>{calculatePositivePercentage()}%</span>
       </li>
     </ul>
-  ) : (
-    <div className={css.card}>No feedback yet</div>
   );
 }
+
+Feedback.propTypes = {
+  counters: PropTypes.object.isRequired,
+  colors: PropTypes.object.isRequired,
+  totalFeedback: PropTypes.number.isRequired,
+};
