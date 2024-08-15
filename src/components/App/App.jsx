@@ -45,12 +45,16 @@ export default function App() {
 
   function readLocalStorageCounters() {
     const returnCounters = { ...initialCounters };
+    let lsData = {};
 
-    const lsData = JSON.parse(localStorage.getItem(localStorageKey));
-    if (!lsData) return returnCounters;
+    try {
+      lsData = JSON.parse(localStorage.getItem(localStorageKey));
+    } catch {
+      return returnCounters;
+    }
 
     for (const key in lsData) {
-      if (returnCounters[key]) returnCounters[key] = { ...returnCounters[key], count: lsData[key] };
+      if (returnCounters[key]) returnCounters[key] = { ...returnCounters[key], count: !isNaN(lsData[key]) ? lsData[key] : 0 };
     }
 
     return returnCounters;
