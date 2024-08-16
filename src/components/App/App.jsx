@@ -2,7 +2,7 @@ import css from './App.module.css';
 import Description from '../Description/Description';
 import Options from '../Options/Options';
 import Feedback from '../Feedback/Feedback';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Notification from '../Notification/Notification';
 
 const localStorageKey = 'counters';
@@ -24,6 +24,18 @@ const counterColors = {
 export default function App() {
   const [counters, setCounters] = useState(() => readLocalStorageCounters());
 
+  const totalFeedback = useMemo(() => {
+    return Object.values(counters).reduce((acc, { count }) => acc + count, 0);
+  }, [counters]);
+
+  const positivePercentage = useMemo(() => {
+    const goodFeedback =
+      Object.values(counters)
+        .filter(({ good }) => true === good)
+        .reduce((acc, { count }) => acc + count, 0) ?? 0;
+    return totalFeedback > 0 ? Math.round((goodFeedback / totalFeedback) * 100) : 0;
+  }, [counters, totalFeedback]);
+
   function updateFeedback(key) {
     setCounters(prevCounters => ({
       ...prevCounters,
@@ -37,10 +49,6 @@ export default function App() {
   function handleReset() {
     localStorage.removeItem(localStorageKey);
     setCounters(initialCounters);
-  }
-
-  function calculateTotalFeedback() {
-    return Object.values(counters).reduce((acc, { count }) => acc + count, 0);
   }
 
   function readLocalStorageCounters() {
@@ -73,11 +81,11 @@ export default function App() {
         <Description title="Sip Happens Café" text="Please leave your feedback about our service by selecting one of the options below" />
       </div>
       <div className={css.card}>
-        <Options counters={counters} colors={counterColors} updateFeedback={updateFeedback} handleReset={handleReset} totalFeedback={calculateTotalFeedback()} />
+        <Options counters={counters} colors={counterColors} updateFeedback={updateFeedback} handleReset={handleReset} totalFeedback={totalFeedback} />
       </div>
       <div className={css.card}>
-        {calculateTotalFeedback() > 0 ? (
-          <Feedback counters={counters} colors={counterColors} totalFeedback={calculateTotalFeedback()} />
+        {totalFeedback > 0 ? (
+          <Feedback counters={counters} colors={counterColors} totalFeedback={totalFeedback} positiveFeedback={positivePercentage} />
         ) : (
           <Notification message="No feedback yet" />
         )}

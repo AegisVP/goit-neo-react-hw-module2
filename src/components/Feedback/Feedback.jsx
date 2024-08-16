@@ -1,16 +1,7 @@
-/* eslint-disable no-prototype-builtins */
 import css from './Feedback.module.css';
 import PropTypes from 'prop-types';
 
-export default function Feedback({ counters, colors, totalFeedback }) {
-  const calculatePositivePercentage = () => {
-    const goodFeedback =
-      Object.values(counters)
-        .filter(({ good }) => true === good)
-        .reduce((acc, { count }) => acc + count, 0) ?? 0;
-    return totalFeedback > 0 ? Math.round((goodFeedback / totalFeedback) * 100) : 0;
-  };
-
+export default function Feedback({ counters, colors, totalFeedback, positiveFeedback }) {
   return (
     <ul className={css.card}>
       {Object.keys(counters).map(key => {
@@ -29,7 +20,7 @@ export default function Feedback({ counters, colors, totalFeedback }) {
       </li>
       <li className={css.item} key="positive" style={{ fontWeight: 'bold', backgroundColor: 'rgb(200, 255, 200)' }}>
         <span className={css.label}>Positive: &nbsp; </span>
-        <span className={css.percentage}>{calculatePositivePercentage()}%</span>
+        <span className={css.percentage}>{positiveFeedback}%</span>
       </li>
     </ul>
   );
@@ -39,4 +30,5 @@ Feedback.propTypes = {
   counters: PropTypes.object.isRequired,
   colors: PropTypes.object.isRequired,
   totalFeedback: PropTypes.number.isRequired,
+  positiveFeedback: PropTypes.number.isRequired,
 };
